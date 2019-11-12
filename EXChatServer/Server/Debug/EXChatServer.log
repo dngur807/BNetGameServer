@@ -1,0 +1,23 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(452,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (EXChatServer.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  server.cpp
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(36,14): error C2143: 구문 오류: ';'이(가) '*' 앞에 없습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(36,14): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(36,18): error C2238: ';' 앞에 예기치 않은 토큰이 있습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(38,12): error C2143: 구문 오류: ';'이(가) '*' 앞에 없습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(38,12): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(39,7): error C2238: ';' 앞에 예기치 않은 토큰이 있습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(42,10): error C2143: 구문 오류: ';'이(가) '*' 앞에 없습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(42,10): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(42,14): error C2238: ';' 앞에 예기치 않은 토큰이 있습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(43,10): error C2143: 구문 오류: ';'이(가) '*' 앞에 없습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(43,10): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(43,14): error C2238: ';' 앞에 예기치 않은 토큰이 있습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(44,7): error C2143: 구문 오류: ';'이(가) '*' 앞에 없습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(44,7): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(44,11): error C2238: ';' 앞에 예기치 않은 토큰이 있습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(45,11): error C2143: 구문 오류: ';'이(가) '*' 앞에 없습니다.
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(45,11): error C4430: 형식 지정자가 없습니다. int로 가정합니다. 참고: C++에서는 기본 int를 지원하지 않습니다.
+  io.cpp
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\server.h(45,15): error C2238: ';' 앞에 예기치 않은 토큰이 있습니다.
+  코드를 생성하고 있습니다...
+D:\Study\C++\git\book_battlenet\EXChatServer\Server\io.cpp(2,10): fatal error C1083: 포함 파일을 열 수 없습니다. 'server': No such file or directory
