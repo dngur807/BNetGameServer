@@ -326,3 +326,88 @@ unsigned int __stdcall InWorkerTcpTProc(void* pParam)
 	return 1;
 
 }
+
+/*
+버퍼 관리
+
+이 부분이 IO 계층에서 가장 중요한 부붑능ㄹ 차지하고 있는 곳이다.
+이 버퍼들은 요청된 데이터 또는 그것에 대한 응답으로 전송될 데이터들이 중간에 거쳐가는 부분으로 
+이것의 관리방법을 보고자 하는 단락이다.,
+
+복사의 최소화를 중점적으로 본다. 보통 전달받은 데이터들은 각 프로토콜 별로 해당 하는 양만큼을 하나의 뭉치로서 처리한다.
+가령 채널에 입장하기라는 프로토콜이 100바이트의 데이터라면 그것을 하나의 단위로 처리하는 것이다.
+
+그러한 과정에서 보통 하나의 패킷을 버퍼에 복사하는 식으로 사용한다.
+하지만 서버라는 것이 유저들의 요구에 해당하는 패킷을 적절하게 해석하는 것이 대부분이므로
+이런 식의 복사라는 과정은 많은 CPU 시간을 사용하는 부분 중의 하나가 될 것이다.
+이러한 이유로 여기서는 그것을 최대한으로 줄일 수 있는 방향ㅇ르 찾아보려 한 것이다.
+
+유저로 부터 전송된 데이터를 읽을 수 있도록 비동기 함수를 호출하는 부분이다.
+*/
+
+
+void PostTcpRecv(LPSOCKETCONTEXT lpSockContext)
+{
+	WSABUF			wsaBuf;
+	DWORD			dwReceived, dwFlags;
+	int				iResult;
+
+	// WSARecv 함수를 위한 버퍼 설정
+	dwFlags = 0;
+	wsaBuf.buf = lpSockContext->cpRTEnd; // 링 버퍼의 끝에서 부터 받는다.
+	wsaBuf.len = MAXRECVPACKETSIZE; // 이곳에서는 받아들일 수 있는 최대 사이즈를 MAXRECVPACKETSIZE 로 한다.
+	// 또한 데이터를 받는 위치를 해당 받기 버퍼의 사용 가능한 끝(cpRTEnd)로 위치시키는 것이다.
+	// 데이터를 받기에 해당하는 오버랩 구조체(eovRecvTcp)나 버퍼에 대한 표시변수 등은 모두 각각의 유저들에게
+	// 있는 것을 사용함으로서 서로 독립적인 처리를 만들게 한다.
+	// WSARecv가 비동기 함수이므로 제대로 된 상태에서 이 호출은 언제나 바로 넘어가며
+	// 데이터가 전송되어 왔을 경우에는 이벤트가 발생하는 것이다.
+	// 그 경우에는 읽어들인 데이터는 해당 구조체의 cpRTEnd를 시작으로 하여 전달된 바이트 수만큼이 저장된다.
+	// 이렇게 한 후에 이 읽어들인 데이터에 대하여 버퍼를 정리하는 부분이 RecvTcpBufEnqueue이다.
+
+	iResult = WSARecv(lpSockContext->sockTcp, &wsaBuf, 1, &dwReceived, &dwFlags,
+		(OVERLAPPED*)&lpSockContext->eovRecvTcp, NULL);
+
+	//PENDING을 제외한 나머지 에러
+	if (iResult == SOCKET_ERROR && WSAGetLastError() != ERROR_IO_PENDING)
+	{
+		// never comes
+		DConsole.Output("***** PostTcpRecv error : %d, %d\n", lpSockContext->index, WSAGetLastError());
+	}
+
+}
+
+
+/*
+WSARECV가 비동기 함수이므로 제대로 된 상태에서
+이 호출은 언제나 바로 넘어가며 데이터가 전송되어 왔을 경우에는
+이벤트가 발생하는 것이다. 그 경우에서 읽어들인 데이터는 해당 유저 구조체의 cpRTEnd를 시작으로 하여 전달된 바이트 수만큼 저장
+이 후에 이 읽어들인 데이터에  대하여 버퍼를 정리하는 부분이 바로 RecvTcpBufEnqueue 이다
+*/
+
+void RecvTcpBufEnqueue(LPSOCKETCONTEXT lpSockContext, int iPacketSize)
+{
+	int		iExtra;
+
+
+	//  전송받은 패킷으로 인하여 받은 버퍼를 초과하는 지를 검사 (포인터의 뺄셈 (주소값 연산))
+	iExtra = lpSockContext->cpRTEnd + iPacketSize - lpSockContext->cRecvTcpRingBuf - RINGBUFSIZE;
+
+	if (iExtra >= 0)
+	{
+		// 받기 버퍼를 초과한다면 그 부분을 앞으로 이동
+		CopyMemory(lpSockContext->cRecvTcpRingBuf, lpSockContext->crEcvTcpRingBuf + RINGBUFSIZe, iExtra);
+
+		// 큐가 쌓일 위치 조정
+		lpSockContext->cpRTEnd = lpSockContext->cRecvTcpRingBuf + iExtra;
+	}
+	else
+	{
+		// 큐가 쌓일 위치 조정
+		lpSockContext->cpRTEnd += iPacketSize;
+	}
+
+#ifdef _LOGLEVEL1_
+	DConsole.Output( "RecvTcpBufEnqueue : %d, %d byte\n", lpSockContext->index, iPacketSize );
+#endif
+
+}
